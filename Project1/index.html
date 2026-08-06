@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance Tracker</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #eef3f8;
+        }
+
+        #attendancePage {
+            display: none;
+        }
+
+        #summaryPage {
+            display: none;
+            min-height: 90vh;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .summaryBox {
+            max-width: 600px;
+            width: 100%;
+        }
+
+
+        #inputPage {
+            min-height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .input-card {
+            max-width: 500px;
+        }
+
+        tr.active {
+            --bs-table-bg: #dbeafe;
+        }
+
+        .status.pending {
+            font-weight: bold;
+            color: #64748b;
+        }
+
+        .status.present {
+            font-weight: bold;
+            color: #16a34a;
+        }
+
+        .status.absent {
+            font-weight: bold;
+            color: #dc2626;
+        }
+
+        #attendancePage .table-responsive {
+            max-height: 55vh;
+            overflow-y: auto;
+        }
+
+        #attendancePage table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container py-4">
+
+        <!-- ===================== PAGE 1 ===================== -->
+
+        <section id="inputPage">
+
+            <h1 class="text-center fs-1 mb-4 text-dark">Student Attendance Tracker</h1>
+
+            <div class="input-card w-100 bg-white p-4 p-md-4 rounded-4 shadow">
+
+                <!-- <p class="text-center fs-5 text-secondary ">
+                    Enter Start and End Roll Number
+                </p> -->
+
+                <label class="form-label fw-bold">Start Roll No. :</label>
+                <input type="number" id="startRoll" class="form-control mb-3">
+
+                <label class="form-label fw-bold">End Roll No. :</label>
+                <input type="number" id="endRoll" class="form-control">
+
+                <button id="generateBtn" class="btn btn-primary w-100 mt-4 fw-bold" onclick="generateTable()">
+                    Generate Attendance
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ===================== PAGE 2 ===================== -->
+
+        <section id="attendancePage" style="display:none;">
+
+            <h1 class="text-center fs-1 mb-4 text-dark">Attendance Dashboard</h1>
+
+            <!-- Dashboard Cards -->
+
+            <div class="row justify-content-center g-3 mb-4">
+
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="card text-white text-center shadow" style="background:#2563eb;">
+                        <div class="card-body">
+                            <h1 id="totalStudent" class="display-6 mb-1 fw-bold ">0</h1>
+                            <p class="mb-0 fw-bold">Total Students</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="card text-white text-center shadow" style="background:#16a34a;">
+                        <div class="card-body">
+                            <h1 id="totalPresent" class="display-6 mb-1 fw-bold ">0</h1>
+                            <p class="mb-0 fw-bold">Total Present</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="card text-white text-center shadow" style="background:#dc2626;">
+                        <div class="card-body">
+                            <h1 id="totalAbsent" class="display-6 mb-1 fw-bold ">0</h1>
+                            <p class="mb-0 fw-bold">Total Absent</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+            <!-- Buttons -->
+
+            <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+
+                <button id="backBtn" class="btn text-white fw-medium" style="background:#475569;"
+                    onclick="backToInput()">
+                    ← Back
+                </button>
+
+                <button id="allPresentBtn" class="btn btn-success fw-medium" onclick="allPresent()">
+                    All Present
+                </button>
+
+                <button id="allAbsentBtn" class="btn btn-danger fw-medium" onclick="allAbsent()">
+                    All Absent
+                </button>
+
+                <button id="resetBtn" class="btn text-white fw-medium" style="background:#f59e0b;"
+                    onclick="resetAttendance()">
+                    Reset Attendance
+                </button>
+
+                <button id="saveBtn" class="btn text-white fw-medium" style="background:#7c3aed;"
+                    onclick="saveAttendance()">
+                    Save Attendance
+                </button>
+
+            </div>
+
+
+
+            <!-- Attendance Table -->
+
+            <div class="table-responsive">
+                <table id="attendanceTable" class="table table-bordered table-hover bg-white shadow-sm text-center">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>Roll No</th>
+
+                            <th>Status</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tableBody">
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </section>
+
+
+
+        <!-- ===================== PAGE 3 ===================== -->
+
+        <section id="summaryPage" style="display:none;">
+
+            <h1 class="text-center fs-1 mb-4 text-dark">Attendance Summary</h1>
+
+            <div class="summaryBox bg-white p-4 rounded-4 shadow text-center">
+
+                <p>
+                    <strong>Total Students :</strong>
+                    <span id="finalTotal">0</span>
+                </p>
+
+                <p>
+                    <strong>Total Present :</strong>
+                    <span id="finalPresent">0</span>
+                </p>
+
+                <p>
+                    <strong>Total Absent :</strong>
+                    <span id="finalAbsent">0</span>
+                </p>
+
+                <h3 class="h5 mt-4 text-dark">Present Student List :</h3>
+
+                <p id="presentList"></p>
+
+                <h3 class="h5 mt-4 text-dark">Absent Student List :</h3>
+
+                <p id="absentList"></p>
+
+                <button id="downloadBtn" class="btn text-white fw-medium mt-3 me-2" style="background:#0891b2;"
+                    onclick="download()">
+                    Download Absent List
+                </button>
+
+                <button id="summaryBackBtn" class="btn btn-primary fw-medium mt-3 me-2" onclick="backToAttendance()">
+                    ← Back
+                </button>
+
+                <button id="homeBtn" class="btn text-white fw-medium mt-3" style="background:#475569;"
+                    onclick="backToInput()">
+                    Home
+                </button>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>
